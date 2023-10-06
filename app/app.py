@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, abort
 from flask_migrate import Migrate
 from werkzeug.exceptions import NotFound
 
@@ -18,7 +18,7 @@ db.init_app(app)
 @app.route('/')
 def home():
     response_message = {
-        "message": "WELCOME TO THE PIZZA RESTAURANT API."
+        "message": "WELCOME TO THE HEROS API."
     }
     return make_response(jsonify(response_message), 200)
 
@@ -110,48 +110,22 @@ def update_power_by_id(id):
         return make_response(jsonify({"error": "Power not found"}), 404)
 
 
-# create hero power relationship
+
 @app.route('/hero_powers', methods=['POST'])
-def create_hero_power():
+def signup():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid data, expected JSON"}), 400
 
-    # Validate that the required fields are present in the request
-    required_fields = ["strength", "power_id", "hero_id"]
-    if not all(key in data for key in required_fields):
-        return make_response(jsonify({"errors": ["Validation errors"]}), 400)
-
-    # Check if the Hero and Power exist
-    hero = Hero.query.get(data['hero_id'])
-    power = Power.query.get(data['power_id'])
-
-    if not hero or not power:
-        return make_response(jsonify({"errors": ["Validation errors"]}), 400)
-
-    # Create a new Hero_powers
-    hero_power = Hero_powers(
-        strength=data["strength"],
-        hero_id=data["hero_id"],
-        power_id=data["power_id"]
+    member = Hero_powers(
+        id=data.get('id'),
+        strength=data.get('strength')
     )
 
-    db.session.add(hero_power)
+    db.session.add(member)
     db.session.commit()
 
-    hero_data = {
-        "id": hero.id,
-        "name": hero.name,
-        "super_name": hero.super_name,
-        "powers": [
-            {
-                "id": hero_power.power.id,
-                "name": hero_power.power.name,
-                "description": hero_power.power.description,
-            }
-            for hero_power in hero.powers
-        ]
-    }
-    return make_response(jsonify(hero_data), 201)
-
+    return jsonify({"message": "Member signed up successfully"}), 201
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
