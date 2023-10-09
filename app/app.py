@@ -112,7 +112,7 @@ def update_power_by_id(id):
 
 
 @app.route('/hero_powers', methods=['POST'])
-def signup():
+def post_hero_power():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid data, expected JSON"}), 400
@@ -125,7 +125,7 @@ def signup():
     db.session.add(member)
     db.session.commit()
 
-    return jsonify({"message": "Member signed up successfully"}), 201
+    return jsonify({"message": "POST Successful"}), 201
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
